@@ -22,4 +22,11 @@
     <color name="theme_primary_dark">#04561A</color>
     <color name="theme_accent">#04561A</color>
     <color name="ltgray">#ffe0e0e0</color>
+    
+    <color name="happy_purple_primary">#8034af</color>
+    <color name="happy_purple_dark">#4f007f</color>
+    <color name="happy_purple_light">#b363e2</color>
+    <color name="black">#000000</color>
+
+
 </resources>
