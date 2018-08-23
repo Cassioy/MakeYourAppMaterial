@@ -26,12 +26,13 @@ android {
     buildToolsVersion '27.0.3'
 
     defaultConfig {
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 25
     }
 }
 
 dependencies {
+    api 'com.android.support:design:25.4.0'
     implementation 'com.android.support:support-v4:25.4.0'
     implementation 'com.android.support:support-v13:25.4.0'
     implementation 'com.android.support:appcompat-v7:25.4.0'
