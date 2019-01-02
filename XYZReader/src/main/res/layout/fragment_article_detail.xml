@@ -18,7 +18,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
-                    <FrameLayout
+                    <android.support.design.widget.CoordinatorLayout
                         android:id="@+id/photo_container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -27,10 +27,10 @@
                         <ImageView
                             android:id="@+id/photo"
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
+                            android:layout_height="@dimen/detail_photo_height"
                             android:scaleType="centerCrop" />
 
-                    </FrameLayout>
+                    </android.support.design.widget.CoordinatorLayout>
 
                     <com.example.xyzreader.ui.MaxWidthLinearLayout
                         android:orientation="vertical"
@@ -39,7 +39,7 @@
                         android:layout_gravity="center_horizontal"
                         android:maxWidth="@dimen/detail_card_max_width"
                         android:background="#fff"
-                        android:elevation="2dp">
+                        android:elevation="@dimen/card_elevation">
 
                         <LinearLayout
                             android:id="@+id/meta_bar"
@@ -80,8 +80,8 @@
                             style="?android:attr/textAppearanceMedium"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="@dimen/detail_inner_horiz_margin"
-                            android:layout_marginRight="@dimen/detail_inner_horiz_margin"
+                            android:layout_marginLeft="18dp"
+                            android:layout_marginRight="18dp"
                             android:fontFamily="sans-serif"
                             android:lineSpacingMultiplier="@fraction/detail_body_line_spacing_multiplier"
                             android:paddingBottom="@dimen/detail_body_bottom_margin"
@@ -106,8 +106,8 @@
         android:layout_gravity="bottom|end"
         android:layout_marginRight="@dimen/fab_margin"
         android:layout_marginBottom="@dimen/fab_margin"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
+        android:layout_width="@dimen/fab_size"
+        android:layout_height="@dimen/fab_size"
         android:src="@drawable/ic_share"
         android:elevation="@dimen/fab_elevation"
         android:contentDescription="@string/action_share" />

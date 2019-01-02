@@ -22,7 +22,6 @@ import android.widget.TextView;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
-import com.example.xyzreader.data.ItemsContract;
 import com.example.xyzreader.data.UpdaterService;
 
 import java.text.ParseException;
@@ -43,6 +42,15 @@ public class ArticleListActivity extends ActionBarActivity implements
     private Toolbar mToolbar;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;
+    private int mPos;
+    private long mID;
+    private int mCount = 0;
+    static final String CURSOR_POSITION = "position";
+    static final String ID = "item_id";
+    static final String CURSOR_COUNT = "cursor_count";
+
+
+
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
     // Use default locale format
@@ -57,7 +65,12 @@ public class ArticleListActivity extends ActionBarActivity implements
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
 
+
+        getLoaderManager().initLoader(0, null, this );
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+
+
+        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
 
         mSwipeRefreshLayout.setOnRefreshListener(
                 new SwipeRefreshLayout.OnRefreshListener() {
@@ -68,12 +81,10 @@ public class ArticleListActivity extends ActionBarActivity implements
                 }
         );
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        getLoaderManager().initLoader(0, null, this);
-
         if (savedInstanceState == null) {
             refresh();
         }
+
     }
 
     private void refresh() {
@@ -116,19 +127,23 @@ public class ArticleListActivity extends ActionBarActivity implements
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
+        mCount = cursor.getCount();
         Adapter adapter = new Adapter(cursor);
         adapter.setHasStableIds(true);
-        mRecyclerView.setAdapter(adapter);
         int columnCount = getResources().getInteger(R.integer.list_column_count);
         GridLayoutManager sglm =
                 new GridLayoutManager(getApplicationContext(), columnCount);
 
         mRecyclerView.setLayoutManager(sglm);
+        mRecyclerView.setAdapter(adapter);
+
+
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         mRecyclerView.setAdapter(null);
+
     }
 
     private class Adapter extends RecyclerView.Adapter<ViewHolder> {
@@ -151,8 +166,14 @@ public class ArticleListActivity extends ActionBarActivity implements
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    startActivity(new Intent(Intent.ACTION_VIEW,
-                            ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))));
+
+                    Intent i = new Intent(ArticleListActivity.this, ArticleDetailActivity.class);
+                    mID = getItemId(vh.getAdapterPosition());
+                    mPos = vh.getLayoutPosition();
+                    i.putExtra(ID, mID);
+                    i.putExtra(CURSOR_POSITION, mPos);
+                    if(mCount >= 0) i.putExtra(CURSOR_COUNT, mCount);
+                    startActivity(i);
                 }
             });
             return vh;

@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
-import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -46,10 +45,12 @@ public class ArticleDetailFragment extends Fragment implements
     private static final String TAG = "ArticleDetailFragment";
 
     public static final String ARG_ITEM_ID = "item_id";
+    public static final String ARG_ITEM_POSITION = "position";
     private static final float PARALLAX_FACTOR = 1.25f;
 
     private Cursor mCursor;
     private long mItemId;
+    private int mPosition;
     private View mRootView;
     private int mMutedColor = 0xFF333333;
     private ObservableScrollView mScrollView;
@@ -76,9 +77,10 @@ public class ArticleDetailFragment extends Fragment implements
     public ArticleDetailFragment() {
     }
 
-    public static ArticleDetailFragment newInstance(long itemId) {
+    public static ArticleDetailFragment newInstance(long itemId, int position) {
         Bundle arguments = new Bundle();
         arguments.putLong(ARG_ITEM_ID, itemId);
+        arguments.putInt(ARG_ITEM_POSITION, position);
         ArticleDetailFragment fragment = new ArticleDetailFragment();
         fragment.setArguments(arguments);
         return fragment;
@@ -91,7 +93,6 @@ public class ArticleDetailFragment extends Fragment implements
         if (getArguments().containsKey(ARG_ITEM_ID)) {
             mItemId = getArguments().getLong(ARG_ITEM_ID);
         }
-
         mIsCard = getResources().getBoolean(R.bool.detail_is_card);
         mStatusBarFullOpacityBottom = getResources().getDimensionPixelSize(
                 R.dimen.detail_card_top_margin);
@@ -116,7 +117,14 @@ public class ArticleDetailFragment extends Fragment implements
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
+
         mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
+
+        mPhotoView = (ImageView) mRootView.findViewById(R.id.photo);
+        mPhotoContainerView = mRootView.findViewById(R.id.photo_container);
+        mScrollView = (ObservableScrollView) mRootView.findViewById(R.id.scrollview);
+
+
         mDrawInsetsFrameLayout = (DrawInsetsFrameLayout)
                 mRootView.findViewById(R.id.draw_insets_frame_layout);
         mDrawInsetsFrameLayout.setOnInsetsCallback(new DrawInsetsFrameLayout.OnInsetsCallback() {
@@ -126,7 +134,6 @@ public class ArticleDetailFragment extends Fragment implements
             }
         });
 
-        mScrollView = (ObservableScrollView) mRootView.findViewById(R.id.scrollview);
         mScrollView.setCallbacks(new ObservableScrollView.Callbacks() {
             @Override
             public void onScrollChanged() {
@@ -137,8 +144,6 @@ public class ArticleDetailFragment extends Fragment implements
             }
         });
 
-        mPhotoView = (ImageView) mRootView.findViewById(R.id.photo);
-        mPhotoContainerView = mRootView.findViewById(R.id.photo_container);
 
 
         mStatusBarColorDrawable = new ColorDrawable(0);
@@ -152,6 +157,7 @@ public class ArticleDetailFragment extends Fragment implements
                         .getIntent(), getString(R.string.action_share)));
             }
         });
+
 
         bindViews();
         updateStatusBar();
@@ -184,10 +190,6 @@ public class ArticleDetailFragment extends Fragment implements
             // finally change the color
             window.setStatusBarColor(color);
         }
-
-
-
-
     }
 
     static float progress(float v, float min, float max) {
@@ -225,9 +227,6 @@ public class ArticleDetailFragment extends Fragment implements
         bylineView.setMovementMethod(new LinkMovementMethod());
         TextView bodyView = (TextView) mRootView.findViewById(R.id.article_body);
 
-
-        bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
-
         if (mCursor != null) {
             mRootView.setAlpha(0);
             mRootView.setVisibility(View.VISIBLE);
@@ -253,6 +252,7 @@ public class ArticleDetailFragment extends Fragment implements
                                 + "</font>"));
 
             }
+
             bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\r\n|\n)", "<br />")));
 
             ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
@@ -286,7 +286,7 @@ public class ArticleDetailFragment extends Fragment implements
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return ArticleLoader.newInstanceForItemId(getActivity(), mItemId);
+        return ArticleLoader.newInstanceForItemId(getActivityCast(), mItemId);
     }
 
     @Override

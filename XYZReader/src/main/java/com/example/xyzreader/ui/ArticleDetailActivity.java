@@ -10,7 +10,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v13.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,16 +19,24 @@ import android.view.WindowInsets;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
-import com.example.xyzreader.data.ItemsContract;
 
 /**
  * An activity representing a single Article detail screen, letting you swipe between articles.
  */
-public class ArticleDetailActivity extends ActionBarActivity
+public class ArticleDetailActivity extends AppCompatActivity
         implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private Cursor mCursor;
     private long mStartId;
+    private int mPosition;
+    private int mCounter = 0;
+    public static final String ITEM_ID = "item_id";
+    public static final String ITEM_POSITION = "position";
+    public static final String ITEMS_COUNT = "cursor_count";
+
+
+    private static final String TAG = MyPagerAdapter.class.getSimpleName();
+
 
     private long mSelectedItemId;
     private int mSelectedItemUpButtonFloor = Integer.MAX_VALUE;
@@ -37,6 +46,14 @@ public class ArticleDetailActivity extends ActionBarActivity
     private MyPagerAdapter mPagerAdapter;
     private View mUpButtonContainer;
     private View mUpButton;
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putLong(ITEM_ID, mStartId);
+        outState.putInt(ITEM_POSITION, mPosition);
+        outState.putInt(ITEMS_COUNT, mCounter);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +68,20 @@ public class ArticleDetailActivity extends ActionBarActivity
         setContentView(R.layout.activity_article_detail);
 
         getLoaderManager().initLoader(0, null, this);
+
+        if (savedInstanceState == null) {
+            if (getIntent() != null) {
+                mStartId = getIntent().getLongExtra(ITEM_ID, mStartId);
+                mSelectedItemId = mStartId;
+                mPosition = getIntent().getIntExtra(ITEM_POSITION, mPosition);
+                mCounter = getIntent().getIntExtra(ITEMS_COUNT, mCounter);
+            }
+        }else{
+            mStartId = savedInstanceState.getLong(ITEM_ID);
+            mSelectedItemId = mStartId;
+            mPosition = savedInstanceState.getInt(ITEM_POSITION);
+            mCounter = savedInstanceState.getInt(ITEMS_COUNT);
+        }
 
         mPagerAdapter = new MyPagerAdapter(getFragmentManager());
         mPager = (ViewPager) findViewById(R.id.pager);
@@ -68,12 +99,13 @@ public class ArticleDetailActivity extends ActionBarActivity
                         .setDuration(300);
             }
 
-            @Override
+            @   Override
             public void onPageSelected(int position) {
                 if (mCursor != null) {
                     mCursor.moveToPosition(position);
                 }
-                mSelectedItemId = mCursor.getLong(ArticleLoader.Query._ID);
+                Log.d(TAG, "onPageSelected: " + position);
+                mStartId = mCursor.getLong(ArticleLoader.Query._ID);
                 updateUpButtonPosition();
             }
         });
@@ -100,14 +132,9 @@ public class ArticleDetailActivity extends ActionBarActivity
                 }
             });
         }
-
-        if (savedInstanceState == null) {
-            if (getIntent() != null && getIntent().getData() != null) {
-                mStartId = ItemsContract.Items.getItemId(getIntent().getData());
-                mSelectedItemId = mStartId;
-            }
-        }
     }
+
+
 
     @Override
     public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
@@ -118,20 +145,10 @@ public class ArticleDetailActivity extends ActionBarActivity
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
         mCursor = cursor;
         mPagerAdapter.notifyDataSetChanged();
-
         // Select the start ID
-        if (mStartId > 0) {
-            mCursor.moveToFirst();
-            // TODO: optimize
-            while (!mCursor.isAfterLast()) {
-                if (mCursor.getLong(ArticleLoader.Query._ID) == mStartId) {
-                    final int position = mCursor.getPosition();
-                    mPager.setCurrentItem(position, false);
-                    break;
-                }
-                mCursor.moveToNext();
-            }
-            mStartId = 0;
+        if (mSelectedItemId >= 0) {
+                mCursor.moveToPosition(mPosition);
+                mPager.setCurrentItem(mPosition, false);
         }
     }
 
@@ -154,6 +171,7 @@ public class ArticleDetailActivity extends ActionBarActivity
     }
 
     private class MyPagerAdapter extends FragmentStatePagerAdapter {
+
         public MyPagerAdapter(FragmentManager fm) {
             super(fm);
         }
@@ -171,7 +189,7 @@ public class ArticleDetailActivity extends ActionBarActivity
         @Override
         public Fragment getItem(int position) {
             mCursor.moveToPosition(position);
-            return ArticleDetailFragment.newInstance(mCursor.getLong(ArticleLoader.Query._ID));
+            return ArticleDetailFragment.newInstance(mCursor.getLong(ArticleLoader.Query._ID), position);
         }
 
         @Override
@@ -179,4 +197,5 @@ public class ArticleDetailActivity extends ActionBarActivity
             return (mCursor != null) ? mCursor.getCount() : 0;
         }
     }
+
 }
