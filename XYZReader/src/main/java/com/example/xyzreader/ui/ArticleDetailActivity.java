@@ -11,11 +11,11 @@ import android.os.Bundle;
 import android.support.v13.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
+import android.widget.ProgressBar;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
@@ -43,6 +43,7 @@ public class ArticleDetailActivity extends AppCompatActivity
     private int mTopInset;
 
     private ViewPager mPager;
+    private ProgressBar mLoading;
     private MyPagerAdapter mPagerAdapter;
     private View mUpButtonContainer;
     private View mUpButton;
@@ -66,7 +67,6 @@ public class ArticleDetailActivity extends AppCompatActivity
         }
 
         setContentView(R.layout.activity_article_detail);
-
         getLoaderManager().initLoader(0, null, this);
 
         if (savedInstanceState == null) {
@@ -76,7 +76,9 @@ public class ArticleDetailActivity extends AppCompatActivity
                 mPosition = getIntent().getIntExtra(ITEM_POSITION, mPosition);
                 mCounter = getIntent().getIntExtra(ITEMS_COUNT, mCounter);
             }
+
         }else{
+
             mStartId = savedInstanceState.getLong(ITEM_ID);
             mSelectedItemId = mStartId;
             mPosition = savedInstanceState.getInt(ITEM_POSITION);
@@ -104,11 +106,11 @@ public class ArticleDetailActivity extends AppCompatActivity
                 if (mCursor != null) {
                     mCursor.moveToPosition(position);
                 }
-                Log.d(TAG, "onPageSelected: " + position);
                 mStartId = mCursor.getLong(ArticleLoader.Query._ID);
                 updateUpButtonPosition();
             }
         });
+
 
         mUpButtonContainer = findViewById(R.id.up_container);
 
@@ -146,9 +148,9 @@ public class ArticleDetailActivity extends AppCompatActivity
         mCursor = cursor;
         mPagerAdapter.notifyDataSetChanged();
         // Select the start ID
-        if (mSelectedItemId >= 0) {
-                mCursor.moveToPosition(mPosition);
-                mPager.setCurrentItem(mPosition, false);
+        if (mStartId > 0) {
+            mCursor.moveToPosition(mPosition);
+            mPager.setCurrentItem(mPosition, false);
         }
     }
 
@@ -189,7 +191,7 @@ public class ArticleDetailActivity extends AppCompatActivity
         @Override
         public Fragment getItem(int position) {
             mCursor.moveToPosition(position);
-            return ArticleDetailFragment.newInstance(mCursor.getLong(ArticleLoader.Query._ID), position);
+            return ArticleDetailFragment.newInstance(mCursor.getLong(ArticleLoader.Query._ID));
         }
 
         @Override

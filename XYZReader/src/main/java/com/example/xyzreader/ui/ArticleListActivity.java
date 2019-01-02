@@ -49,9 +49,6 @@ public class ArticleListActivity extends ActionBarActivity implements
     static final String ID = "item_id";
     static final String CURSOR_COUNT = "cursor_count";
 
-
-
-
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.sss");
     // Use default locale format
     private SimpleDateFormat outputFormat = new SimpleDateFormat();
@@ -61,16 +58,14 @@ public class ArticleListActivity extends ActionBarActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(savedInstanceState == null) refresh();
         setContentView(R.layout.activity_article_list);
 
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
-
-
-        getLoaderManager().initLoader(0, null, this );
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
+        getLoaderManager().initLoader(0, null, this );
 
 
-        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
 
         mSwipeRefreshLayout.setOnRefreshListener(
                 new SwipeRefreshLayout.OnRefreshListener() {
@@ -81,10 +76,8 @@ public class ArticleListActivity extends ActionBarActivity implements
                 }
         );
 
-        if (savedInstanceState == null) {
-            refresh();
-        }
-
+        mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        updateRefreshingUI();
     }
 
     private void refresh() {
@@ -101,7 +94,8 @@ public class ArticleListActivity extends ActionBarActivity implements
     @Override
     protected void onStop() {
         super.onStop();
-        unregisterReceiver(mRefreshingReceiver);
+
+        if(mRefreshingReceiver !=null) unregisterReceiver(mRefreshingReceiver);
     }
 
     private boolean mIsRefreshing = false;
@@ -167,13 +161,17 @@ public class ArticleListActivity extends ActionBarActivity implements
                 @Override
                 public void onClick(View view) {
 
-                    Intent i = new Intent(ArticleListActivity.this, ArticleDetailActivity.class);
-                    mID = getItemId(vh.getAdapterPosition());
-                    mPos = vh.getLayoutPosition();
-                    i.putExtra(ID, mID);
-                    i.putExtra(CURSOR_POSITION, mPos);
-                    if(mCount >= 0) i.putExtra(CURSOR_COUNT, mCount);
-                    startActivity(i);
+
+                    if(mIsRefreshing == false) {
+                        Intent i = new Intent(ArticleListActivity.this, ArticleDetailActivity.class);
+                        mID = getItemId(vh.getAdapterPosition());
+                        mPos = vh.getLayoutPosition();
+                        i.putExtra(ID, mID);
+                        i.putExtra(CURSOR_POSITION, mPos);
+                        if (mCount >= 0) i.putExtra(CURSOR_COUNT, mCount);
+
+                        startActivity(i);
+                    }
                 }
             });
             return vh;

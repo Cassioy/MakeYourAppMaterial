@@ -9,6 +9,8 @@
     <integer name="textview_max_lines">2</integer>
     <dimen name="textview_padding_bottom">4dp</dimen>
 
+    <dimen name="text_body_margin">20dp</dimen>
+
     <dimen name="image_button_height">56dp</dimen>
 
 
