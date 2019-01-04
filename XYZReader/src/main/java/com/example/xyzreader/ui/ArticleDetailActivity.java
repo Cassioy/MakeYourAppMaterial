@@ -15,7 +15,6 @@ import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
-import android.widget.ProgressBar;
 
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
@@ -43,7 +42,6 @@ public class ArticleDetailActivity extends AppCompatActivity
     private int mTopInset;
 
     private ViewPager mPager;
-    private ProgressBar mLoading;
     private MyPagerAdapter mPagerAdapter;
     private View mUpButtonContainer;
     private View mUpButton;
