@@ -34,9 +34,6 @@ public class ArticleDetailActivity extends AppCompatActivity
     public static final String ITEMS_COUNT = "cursor_count";
 
 
-    private static final String TAG = MyPagerAdapter.class.getSimpleName();
-
-
     private long mSelectedItemId;
     private int mSelectedItemUpButtonFloor = Integer.MAX_VALUE;
     private int mTopInset;
