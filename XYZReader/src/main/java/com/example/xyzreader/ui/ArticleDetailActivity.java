@@ -60,6 +60,7 @@ public class ArticleDetailActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
 
         postponeEnterTransition();
+        getSupportActionBar();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().getDecorView().setSystemUiVisibility(

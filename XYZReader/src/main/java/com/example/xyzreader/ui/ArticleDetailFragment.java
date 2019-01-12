@@ -11,6 +11,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.graphics.Palette;
@@ -74,6 +75,7 @@ public class ArticleDetailFragment extends Fragment implements
     private RecyclerView mBodyTextRecyclerView;
     private ArticleTextAdapter mBodyTextAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+    private AppBarLayout mAppBarLayout;
     private View mPhotoContainerView;
     private TwoThreeImageView mPhotoView;
     //private int mScrollY;
@@ -143,9 +145,9 @@ public class ArticleDetailFragment extends Fragment implements
         mCollapsingToolbar = (CollapsingToolbarLayout) mRootView.findViewById(R.id.collapsing_toolbar);
         mPhotoView = (TwoThreeImageView) mRootView.findViewById(R.id.photo);
         mPhotoContainerView = mRootView.findViewById(R.id.photo_container);
-       // mScrollView = (ObservableScrollView) mRootView.findViewById(R.id.scrollview);
         mProgressBar = (ProgressBar) mRootView.findViewById(R.id.loading_detail);
 
+        mAppBarLayout = (AppBarLayout) mRootView.findViewById(R.id.app_bar_layout);
 
         mStatusBarColorDrawable = new ColorDrawable(Color.TRANSPARENT);
 
@@ -162,6 +164,7 @@ public class ArticleDetailFragment extends Fragment implements
 
         bindViews();
         updateStatusBar();
+
         return mRootView;
     }
 
@@ -213,8 +216,8 @@ public class ArticleDetailFragment extends Fragment implements
             return;
         }
 
-        TextView titleView = (TextView) mRootView.findViewById(R.id.article_title);
-        TextView bylineView = (TextView) mRootView.findViewById(R.id.article_byline);
+        final TextView titleView = (TextView) mRootView.findViewById(R.id.article_title);
+        final TextView bylineView = (TextView) mRootView.findViewById(R.id.article_byline);
         bylineView.setMovementMethod(new LinkMovementMethod());
         mBodyTextRecyclerView = (RecyclerView) mRootView.findViewById(R.id.article_body);
         mLayoutManager = new LinearLayoutManager(mRootView.getContext());
@@ -277,6 +280,25 @@ public class ArticleDetailFragment extends Fragment implements
                         })
                     .load(mCursor.getString(ArticleLoader.Query.PHOTO_URL))
                     .into(mPhotoView);
+
+            //Modify AppBar title
+            mAppBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+                @Override
+                public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                    if (Math.abs(verticalOffset) == appBarLayout.getTotalScrollRange()) {
+                        // Collapsed
+                        bylineView.setVisibility(GONE);
+                    } else if (verticalOffset == 0) {
+                        // Expanded
+                        bylineView.setVisibility(View.VISIBLE);
+
+                    } else {
+                        // Somewhere in between
+                        bylineView.setVisibility(View.VISIBLE);
+
+                    }
+                }
+            });
 
 
             //Postpone shared Element Transition for Async Objects

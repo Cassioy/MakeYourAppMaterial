@@ -12,5 +12,9 @@
     <dimen name="detail_metabar_title_bottom_padding">8dp</dimen>
     <dimen name="detail_body_bottom_margin">16dp</dimen>
     <dimen name="detail_text_body_margin">20dp</dimen>
+    <dimen name="detail_title_margin">40dp</dimen>
+    <dimen name="detail_title_margin_top">0dp</dimen>
+
+
 
 </resources>
